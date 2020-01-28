@@ -1,0 +1,39 @@
+1.- PRODUCTO MÁS CARO POR CATEGORIA (FLIGHT, CRUISE, HOTEL, TRAIN)
+------------------------------------------------------------------
+
+SELECT ID_FLIGHT AS IDENTIFIER, PLANE AS PRODUCT,  ((F.TOTAL_SEAT_VIP*F.PRICE_VIP) + (F.TOTAL_SEAT_ECO*F.PRICE_ECO)) AS TOTAL_PRICE 
+  FROM FLIGHT AS F WHERE ((F.TOTAL_SEAT_VIP*F.PRICE_VIP) + (F.TOTAL_SEAT_ECO*F.PRICE_ECO)) =(SELECT MAX(TEMP.TOTAL_FINAL) 
+                                                                                               FROM (SELECT ((TOTAL_SEAT_VIP*PRICE_VIP) + (TOTAL_SEAT_ECO*PRICE_ECO)) AS TOTAL_FINAL 
+ 							                                                                           FROM FLIGHT) AS TEMP)
+ UNION
+ SELECT ID_TRAIN AS IDENTIFIER, TRAIN AS PRODUCT,  ((T.TOTAL_SEAT_VIP*T.PRICE_VIP) + (T.TOTAL_SEAT_COMMON*T.PRICE_COMMON)) AS TOTAL_PRICE 
+  FROM TRAIN AS T WHERE ((T.TOTAL_SEAT_VIP*T.PRICE_VIP) + (T.TOTAL_SEAT_COMMON*T.PRICE_COMMON)) =(SELECT MAX(TEMP.TOTAL_FINAL) 
+                                                                                                    FROM (SELECT ((TOTAL_SEAT_VIP*PRICE_VIP) + (TOTAL_SEAT_COMMON*PRICE_COMMON)) AS TOTAL_FINAL 
+ 							                                                                                FROM TRAIN) AS TEMP)
+UNION
+SELECT ID_CRUISE AS IDENTIFIER, SHIP AS PRODUCT,  ((C.TOTAL_ROOM_EXT*C.PRICE_EXT) + (C.TOTAL_ROOM_INT*C.PRICE_INT)) AS TOTAL_PRICE 
+  FROM CRUISE AS C WHERE ((C.TOTAL_ROOM_EXT*C.PRICE_EXT) + (C.TOTAL_ROOM_INT*C.PRICE_INT)) =(SELECT MAX(TEMP.TOTAL_FINAL) 
+                                                                                               FROM (SELECT ((TOTAL_ROOM_EXT*PRICE_EXT) + (TOTAL_ROOM_INT*PRICE_INT)) AS TOTAL_FINAL 
+ 							                                                                           FROM CRUISE) AS TEMP)
+UNION  
+SELECT ID_HOTEL AS IDENTIFIER, HOTEL AS PRODUCT,  ((H.TOTAL_SUITE*H.PRICE_SUITE) + (H.TOTAL_COMMON*H.PRICE_COMMON)) AS TOTAL_PRICE 
+  FROM HOTEL AS H WHERE ((H.TOTAL_SUITE*H.PRICE_SUITE) + (H.TOTAL_COMMON*H.PRICE_COMMON)) =(SELECT MAX(TEMP.TOTAL_FINAL) 
+                                                                                              FROM (SELECT ((TOTAL_SUITE*PRICE_SUITE) + (TOTAL_COMMON*PRICE_COMMON)) AS TOTAL_FINAL 
+ 							                                                                           FROM HOTEL) AS TEMP);
+
+
+
+
+
+2.- CLIENTES MÁS FIELES A LA MARCA (CLIENTES QUE MÁS VECES HAN RESERVADO)
+---------------------------------------------------------------------------------------
+
+SELECT ID_CUST, CUST_NAME, SURNAME, COUNT(BOOK_NUMBER) AS TOTAL_BOOKINGS
+  FROM BOOKS B JOIN CUSTOMER C ON (B.ID_CUST = C.IDENTIFIER)
+ GROUP BY ID_CUST
+HAVING COUNT(BOOK_NUMBER) =  (SELECT MAX(TEMP.COUNT_BOOK) 
+                                FROM (SELECT COUNT(BOOK_NUMBER) AS COUNT_BOOK 
+                                        FROM BOOKS GROUP BY ID_CUST) AS TEMP);
+
+
+
